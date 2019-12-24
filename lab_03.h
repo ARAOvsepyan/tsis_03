@@ -6,6 +6,7 @@
 #include <ctime>
 #include <iomanip>
 #include <cmath>
+#include <fstream>
 
 using namespace std;
 
@@ -16,16 +17,12 @@ static std::mt19937 creator{
         std::random_device{}()
 };
 
-struct function {
-    double operator()(const double& x) {
+double Function(double x, int key) {
+    if (key == 0)
         return cos(x) * tanh(x);
-    }
-};
-struct secondFunction {
-    double operator()(const double& x) {
-        return (cos(x) * tanh(x) * sin(5 * x));
-    }
-};
+    else if (key == 1)
+        return cos(x) * tanh(x) * sin(5 * x);
+}
 
 void print(double num,double tmax, double xmin, double fmin, double chance, string indicator) {
     cout << "|" << setw(3) << setprecision(0) << num << setw(3) << "|" << setw(10) << fixed << setprecision(3) << tmax;
@@ -34,24 +31,25 @@ void print(double num,double tmax, double xmin, double fmin, double chance, stri
 }
 
 
-template <class F>
-void otzhig(F f, const double a, const double b)
+
+void otzhig(int key)
 {
+    double a = 7.0, b = 11.0;
     double Tmin = TMin;
     double Tmax = TMax;
     auto jump = std::uniform_real_distribution<double>(a, b);
     auto temp = std::uniform_real_distribution<double>(0, 1);
     double xmin = jump(creator);
-    std::cout << "+---------------------------------------------------------+" << std::endl;
-    std::cout << "|  N  |     T     |    x    |    f(x)   |    P    | Take? |" << std::endl;
-    std::cout << "+---------------------------------------------------------+" << std::endl;
+    cout << "+---------------------------------------------------------+" << std::endl;
+    cout << "|  N  |     T     |    x    |    f(x)   |    P    | Take? |" << std::endl;
+    cout << "+---------------------------------------------------------+" << std::endl;
     int i = 1;
     std::string indicator = "";
     while (Tmax > Tmin)
     {
         double Xi = jump(creator);
-        double chance = 0.0;
-        double delta_f = f(Xi) - f(xmin); // Находим delta(f)
+        double chance;
+        double delta_f = Function(Xi, key) - Function(xmin, key); // Находим delta(f)
         indicator = "No";
         if (delta_f <= 0)
         {
@@ -70,10 +68,10 @@ void otzhig(F f, const double a, const double b)
                 indicator = "Yes";
             }
         }
-        print(i, Tmax, xmin, f(xmin), chance, indicator);
+        print(i, Tmax, xmin, Function(xmin, key), chance, indicator);
         Tmax *= 0.95;
         i++;
     }
-    std::cout << "+---------------------------------------------------------+" << std::endl;
-    cout << "\n\nResult: xmin: " << xmin << "    Fmin= " << f(xmin) << endl;
+    cout << "+---------------------------------------------------------+" << std::endl;
+    cout << "\n\nResult: xmin: " << xmin << "    Fmin= " << Function(xmin, key) << endl;
 }
